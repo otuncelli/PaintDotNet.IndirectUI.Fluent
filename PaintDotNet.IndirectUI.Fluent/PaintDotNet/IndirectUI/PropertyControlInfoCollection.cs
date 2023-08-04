@@ -31,7 +31,9 @@ public sealed class PropertyControlInfoCollection : IReadOnlyList<PropertyContro
 
     public int Count => items.Count;
 
+#pragma warning disable CA1822 // Mark members as static
     public bool IsReadOnly => false;
+#pragma warning restore CA1822 // Mark members as static
 
     PropertyControlInfo IReadOnlyList<PropertyControlInfo>.this[int index] => GetPropertyControlInfoAt(index);
 
@@ -43,10 +45,13 @@ public sealed class PropertyControlInfoCollection : IReadOnlyList<PropertyContro
     {
         items = new KeyedPropertyControlInfoCollection();
         addedToPanel = new HashSet<PropertyName>();
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+        Regex re = new("(\\B[A-Z])");
+#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
         foreach (Property prop in props)
         {
             PropertyControlInfo pci = PropertyControlInfo.CreateFor(prop);
-            pci.DisplayName(Regex.Replace(prop.Name, "(\\B[A-Z])", " $1"));
+            pci.DisplayName(re.Replace(prop.Name, " $1"));
             items.Add(pci);
         }
     }

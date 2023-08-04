@@ -1,0 +1,330 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+		   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="ValidationFailureResult">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Ignore" />
+            <xs:enumeration value="Clamp" />
+            <xs:enumeration value="ThrowException" />
+        </xs:restriction>
+    </xs:simpleType>
+	<xs:simpleType name="ColorHexCode">
+		<xs:union memberTypes="xs:NMTOKEN">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:pattern value="#[\da-fA-F]{6}([\da-fA-F]{2})?"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+    <xs:complexType name="ControlColors">
+        <xs:sequence minOccurs="3" maxOccurs="3">
+            <xs:element name="Color" type="ColorHexCode" default="#FFFFFF" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="SliderControlStyle">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Default" />
+            <xs:enumeration value="Hue" />
+            <xs:enumeration value="HueCentered" />
+            <xs:enumeration value="SaturationHue" />
+        </xs:restriction>        
+    </xs:simpleType>
+	<xs:complexType name="ReadOnlyBoundToBoolean">
+		<xs:attribute name="SourceControl" use="required" type="xs:string" />
+		<xs:attribute name="Inverse" type="xs:boolean" />
+	</xs:complexType>
+	<xs:complexType name="ReadOnlyBoundToValues">
+		<xs:attribute name="SourceControl" use="required" type="xs:string" />
+		<xs:attribute name="CommaSeparatedValues" use="required" type="xs:string" />
+		<xs:attribute name="Inverse" type="xs:boolean" />
+	</xs:complexType>
+	<xs:complexType name="ReadOnlyBoundToNameValues1">
+		<xs:attribute name="TargetControl" use="required" type="xs:string" />
+		<xs:attribute name="SourceControl" use="required" type="xs:string" />
+		<xs:attribute name="Value" use="required" type="xs:string" />
+	</xs:complexType>
+	<xs:complexType name="ReadOnlyBoundToNameValues">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Pair" type="ReadOnlyBoundToNameValues1" />
+		</xs:sequence>
+		<xs:attribute name="Inverse" type="xs:boolean" />
+	</xs:complexType>
+	<xs:complexType name="BaseControl">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="BoundToBoolean" minOccurs="0" maxOccurs="unbounded" type="ReadOnlyBoundToBoolean" />
+			<xs:element name="BoundToValues" minOccurs="0" maxOccurs="unbounded" type="ReadOnlyBoundToValues" />
+			<xs:element name="BoundToNameValues" minOccurs="0" maxOccurs="unbounded" type="ReadOnlyBoundToNameValues" />
+		</xs:sequence>
+		<xs:attribute name="Name" use="required" type="xs:ID" />
+		<xs:attribute name="ReadOnly" type="xs:boolean" default="false" />
+		<xs:attribute name="OnValidationFailure" type="ValidationFailureResult" default="Clamp"></xs:attribute>
+		<xs:attribute name="Description" type="xs:string" default="" />
+		<xs:attribute name="DisplayName" type="xs:string" />
+	</xs:complexType>
+	<xs:complexType name="BaseSlider">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:sequence>
+					<xs:element name="ControlColors" type="ControlColors" minOccurs="0" maxOccurs="1" />
+				</xs:sequence>
+				<xs:attribute name="ControlStyle" type="SliderControlStyle" default="Default" />
+				<xs:attribute name="RangeWraps" type="xs:boolean" />
+				<xs:attribute name="ShowResetButton" type="xs:boolean" default="true" />
+				<xs:attribute name="SliderLargeChange" type="xs:double" default="5" />
+				<xs:attribute name="SliderSmallChange" type="xs:double" default="1" />
+				<xs:attribute name="UpDownIncrement" type="xs:double" default="1" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+    <!-- ::Int32Property:: -->
+    <xs:complexType name="IntSlider">
+		<xs:complexContent>
+			<xs:extension base="BaseSlider">
+				<xs:attribute name="Value" type="xs:int" />
+				<xs:attribute name="MinValue" type="xs:int" default="-2147483648" />
+				<xs:attribute name="MaxValue" type="xs:int" default="2147483647" />
+				<xs:attribute name="SliderShowTickMarks" type="xs:boolean" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ColorWheel">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attribute name="Value" type="ColorHexCode" default="#00000000" />
+				<xs:attribute name="MinValue" type="xs:int" default="-2147483648" />
+				<xs:attribute name="MaxValue" type="xs:int" default="2147483647" />
+				<xs:attribute name="Alpha" type="xs:boolean" default="true" />
+				<xs:attribute name="ShowResetButton" type="xs:boolean" default="true" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="IncrementButton">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attribute name="Value" type="xs:int" />
+				<xs:attribute name="MinValue" type="xs:int" default="-2147483648" />
+				<xs:attribute name="MaxValue" type="xs:int" default="2147483647" />
+				<xs:attribute name="ButtonText" type="xs:string" default="+" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <!-- ==Int32Property== -->    
+    <!-- ::DoubleProperty:: -->
+    <xs:complexType name="DoubleSlider">
+		<xs:complexContent>
+			<xs:extension base="BaseSlider">
+				<xs:attribute name="Value" type="xs:double" />
+				<xs:attribute name="MinValue" type="xs:double" default="-32768" />
+				<xs:attribute name="MaxValue" type="xs:double" default="32767" />
+				<xs:attribute name="DecimalPlaces" type="xs:int" default="2" />
+				<xs:attribute name="UseExponentialScale" type="xs:boolean" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="AngleMin">
+        <xs:restriction base="xs:double">
+            <xs:enumeration value="-180"></xs:enumeration>
+            <xs:enumeration value="0"></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="AngleMax">
+        <xs:restriction base="xs:double">
+            <xs:enumeration value="180"></xs:enumeration>
+            <xs:enumeration value="360"></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Angle">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="-180" />
+            <xs:maxInclusive value="360" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="AngleChooser">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attribute name="Value" type="Angle" />
+				<xs:attribute name="MinValue" type="AngleMin" default="0" />
+				<xs:attribute name="MaxValue" type="AngleMax" default="360" />
+				<xs:attribute name="UpDownIncrement" type="xs:double" default="1" />
+				<xs:attribute name="ShowResetButton" type="xs:boolean" default="true" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <!-- ==DoubleProperty== -->
+    <!-- ::BooleanProperty:: -->
+    <xs:complexType name="CheckBox">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attribute name="Value" type="xs:boolean" />
+				<xs:attribute name="Footnote" type="xs:string" default="" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <!-- ==BooleanProperty== -->
+    <!-- ::DoubleVectorProperty:: -->
+    <xs:attributeGroup name="CommonDoubleVector23">
+        <xs:attribute name="xValue" type="xs:double" />
+        <xs:attribute name="xMinValue" type="xs:double" default="-32767" />
+        <xs:attribute name="xMaxValue" type="xs:double" default="32767" />
+        <xs:attribute name="yValue" type="xs:double" />
+        <xs:attribute name="yMinValue" type="xs:double" default="-32767" />
+        <xs:attribute name="yMaxValue" type="xs:double" default="32767" />
+        <xs:attribute name="ShowResetButton" type="xs:boolean" default="false" />
+        <xs:attribute name="SliderLargeChangeX" type="xs:double" />
+        <xs:attribute name="SliderLargeChangeY" type="xs:double" />
+        <xs:attribute name="SliderShowTickMarksX" type="xs:boolean" />
+        <xs:attribute name="SliderShowTickMarksY" type="xs:boolean" />
+        <xs:attribute name="SliderSmallChangeX" type="xs:double" />
+        <xs:attribute name="SliderSmallChangeY" type="xs:double" />
+        <xs:attribute name="UpDownIncrementX" type="xs:double" />
+        <xs:attribute name="UpDownIncrementY" type="xs:double" />
+    </xs:attributeGroup>    
+    <xs:complexType name="DoubleVectorSlider">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attributeGroup ref="CommonDoubleVector23" />
+				<xs:attribute name="DecimalPlaces" type="xs:int" default="2" />
+				<xs:attribute name="UseExponentialScale" type="xs:boolean" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DoubleVectorPanAndSlider">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attributeGroup ref="CommonDoubleVector23" />
+				<xs:attribute name="StaticImageUnderlay" type="xs:base64Binary" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <!-- ==DoubleVectorProperty== -->
+    <!-- ::DoubleVector3SliderProperty:: -->
+    <xs:attributeGroup name="CommonDoubleVector3">
+        <xs:attribute name="zValue" type="xs:double" />
+        <xs:attribute name="zMinValue" type="xs:double" default="-32767" />
+        <xs:attribute name="zMaxValue" type="xs:double" default="32767" />
+        <xs:attribute name="SliderLargeChangeZ" type="xs:double" default="5" /> 
+        <xs:attribute name="SliderShowTickMarksZ" type="xs:boolean" />
+        <xs:attribute name="SliderSmallChangeZ" type="xs:double" default="1" />
+        <xs:attribute name="UpDownIncrementZ" type="xs:double" default="1" />
+    </xs:attributeGroup>    
+    <xs:complexType name="DoubleVector3" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attributeGroup ref="CommonDoubleVector23" />
+				<xs:attributeGroup ref="CommonDoubleVector3" />
+			</xs:extension>
+		</xs:complexContent>     
+    </xs:complexType>
+    <xs:complexType name="DoubleVector3Slider">
+        <xs:complexContent>
+            <xs:extension base="DoubleVector3" />
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DoubleVector3RollBallAndSlider">
+        <xs:complexContent>
+            <xs:extension base="DoubleVector3" />
+        </xs:complexContent>
+    </xs:complexType>
+    <!-- ==DoubleVector3SliderProperty== -->
+    <!-- ::StringProperty:: -->
+    <xs:complexType name="TextBox">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attribute name="Value" type="xs:string" default="" />
+				<xs:attribute name="MaxLength" type="xs:int" default="32767" />
+				<xs:attribute name="Multiline" type="xs:boolean" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="FileChooser">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attribute name="Path" type="xs:string" default="" />
+				<xs:attribute name="AllowAllFiles" type="xs:boolean" />
+				<xs:attribute name="FileTypes" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>  
+    </xs:complexType>
+    <xs:complexType name="FolderChooser">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attribute name="Path" type="xs:string" default="" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <!-- ==StringProperty== -->
+    <!-- ::UriProperty:: -->
+    <xs:complexType name="LinkLabel">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:attribute name="Value" type="xs:anyURI" use="required" />
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <!-- ==UriProperty== -->
+    <!-- ::StaticListChoice:: -->
+	<xs:complexType name="ChoiceType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="Value" type="xs:ID" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
+    <xs:complexType name="StaticListChoice" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="BaseControl">
+				<xs:choice minOccurs="1" maxOccurs="unbounded">
+					<xs:element name="Choice" type="ChoiceType" />
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DropDown">
+        <xs:complexContent>
+            <xs:extension base="StaticListChoice" />
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="RadioButton">
+        <xs:complexContent>
+            <xs:extension base="StaticListChoice" />
+        </xs:complexContent>
+    </xs:complexType>    
+    <!-- ==StaticListChoice== -->
+    <xs:complexType name="Controls">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="AngleChooser" minOccurs="0" type="AngleChooser" />
+            <xs:element name="CheckBox" minOccurs="0" type="CheckBox" />
+            <xs:element name="ColorWheel" minOccurs="0" type="ColorWheel" />
+            <xs:element name="DoubleSlider" minOccurs="0" type="DoubleSlider" />
+            <xs:element name="DoubleVector3Slider" minOccurs="0" type="DoubleVector3Slider" />
+            <xs:element name="DoubleVector3RollBallAndSlider" minOccurs="0" type="DoubleVector3RollBallAndSlider" />
+            <xs:element name="DoubleVectorSlider" minOccurs="0" type="DoubleVectorSlider" />
+            <xs:element name="DoubleVectorPanAndSlider" minOccurs="0" type="DoubleVectorPanAndSlider" />
+            <xs:element name="DropDown" minOccurs="0" type="DropDown" />
+            <xs:element name="FileChooser" minOccurs="0" type="FileChooser" />
+            <xs:element name="FolderChooser" minOccurs="0" type="FolderChooser" />           
+            <xs:element name="IncrementButton" minOccurs="0" type="IncrementButton" />
+            <xs:element name="IntSlider" minOccurs="0" type="IntSlider" />
+            <xs:element name="LinkLabel" minOccurs="0" type="LinkLabel" />
+            <xs:element name="RadioButton" minOccurs="0" type="RadioButton" />
+            <xs:element name="TextBox" minOccurs="0" type="TextBox" />
+            <xs:element name="Container" minOccurs="0" type="Container"  />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Panel">
+        <xs:all>
+            <xs:element name="Controls" minOccurs="0" maxOccurs="1" type="Controls" />
+        </xs:all>
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="Text" type="xs:string" />
+		<xs:attribute name="ToolTipText" type="xs:string" />
+    </xs:complexType>
+    <xs:complexType name="Container">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="Panel" type="Panel" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="IndirectUI" type="Container" />
+</xs:schema>

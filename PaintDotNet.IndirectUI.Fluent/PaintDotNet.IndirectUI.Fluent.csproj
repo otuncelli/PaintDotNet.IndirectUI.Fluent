@@ -85,4 +85,8 @@
     </Reference>
   </ItemGroup>
 
+  <Target Name="OuterPreBuild" BeforeTargets="DispatchToInnerBuilds">
+    <Exec Command="xsd &quot;PaintDotNet\IndirectUI\Xml\Schema\IndirectUI.xsd&quot; /classes /order /namespace:PaintDotNet.IndirectUI.Xml.Schema /out:&quot;PaintDotNet\IndirectUI\Xml\Schema&quot;" />
+  </Target>
+
 </Project>

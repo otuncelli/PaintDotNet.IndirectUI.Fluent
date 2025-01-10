@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0-windows</TargetFrameworks>
+    <TargetFrameworks>net9.0-windows</TargetFrameworks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Nullable>enable</Nullable>
     <NoWarn>FodyPackageReference;MSB3277</NoWarn>
     <OutputType>Library</OutputType>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
@@ -12,7 +13,7 @@
   <PropertyGroup Label="AssemblyInfo" Condition="'$(GenerateAssemblyInfo)'=='true' Or '$(GenerateAssemblyInfo)'==''">
     <AssemblyName>PaintDotNet.IndirectUI.Fluent</AssemblyName>
     <AssemblyTitle></AssemblyTitle>
-    <Copyright>Copyright © 2023 Osman Tunçelli</Copyright>
+    <Copyright>Copyright © 2025 Osman Tunçelli</Copyright>
     <Company>$(Copyright)</Company>
     <Product>$(AssemblyTitle)</Product>
     <Version>1.0.0.0</Version>

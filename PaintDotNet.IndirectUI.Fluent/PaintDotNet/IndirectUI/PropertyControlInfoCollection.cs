@@ -1,4 +1,4 @@
-﻿// Copyright 2023 Osman Tunçelli. All rights reserved.
+﻿// Copyright 2025 Osman Tunçelli. All rights reserved.
 // Use of this source code is governed by GNU General Public License (GPL-2.0) that can be found in the COPYING file.
 
 using PaintDotNet.IndirectUI.Extensions;
@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -31,9 +32,7 @@ public sealed class PropertyControlInfoCollection : IReadOnlyList<PropertyContro
 
     public int Count => items.Count;
 
-#pragma warning disable CA1822 // Mark members as static
     public bool IsReadOnly => false;
-#pragma warning restore CA1822 // Mark members as static
 
     PropertyControlInfo IReadOnlyList<PropertyControlInfo>.this[int index] => GetPropertyControlInfoAt(index);
 
@@ -44,14 +43,12 @@ public sealed class PropertyControlInfoCollection : IReadOnlyList<PropertyContro
     public PropertyControlInfoCollection(IEnumerable<Property> props)
     {
         items = new KeyedPropertyControlInfoCollection();
-        addedToPanel = new HashSet<PropertyName>();
-#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
-        Regex re = new("(\\B[A-Z])");
-#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+        addedToPanel = [];
+        Regex regex = new("(\\B[A-Z])");
         foreach (Property prop in props)
         {
             PropertyControlInfo pci = PropertyControlInfo.CreateFor(prop);
-            pci.DisplayName(re.Replace(prop.Name, " $1"));
+            pci.DisplayName(regex.Replace(prop.Name, " $1"));
             items.Add(pci);
         }
     }
@@ -67,7 +64,7 @@ public sealed class PropertyControlInfoCollection : IReadOnlyList<PropertyContro
         return this;
     }
 
-    public PropertyControlInfoCollection Configure(PropertyName propertyName, string displayName, Func<PropertyControlInfo, PropertyControlInfo> selector = null)
+    public PropertyControlInfoCollection Configure(PropertyName propertyName, string displayName, Func<PropertyControlInfo, PropertyControlInfo>? selector = null)
     {
         return Configure(propertyName, p =>
         {
@@ -76,7 +73,7 @@ public sealed class PropertyControlInfoCollection : IReadOnlyList<PropertyContro
         });
     }
 
-    public PropertyControlInfoCollection Configure(PropertyName propertyName, string displayName, string description, Func<PropertyControlInfo, PropertyControlInfo> selector = null)
+    public PropertyControlInfoCollection Configure(PropertyName propertyName, string displayName, string description, Func<PropertyControlInfo, PropertyControlInfo>? selector = null)
     {
         return Configure(propertyName, displayName, p =>
         {
@@ -85,7 +82,7 @@ public sealed class PropertyControlInfoCollection : IReadOnlyList<PropertyContro
         });
     }
 
-    public bool TryGetControl(PropertyName propertyName, out PropertyControlInfo pci)
+    public bool TryGetControl(PropertyName propertyName, [NotNullWhen(true)] out PropertyControlInfo? pci)
     {
         return items.TryGetValue(propertyName, out pci);
     }
@@ -114,7 +111,7 @@ public sealed class PropertyControlInfoCollection : IReadOnlyList<PropertyContro
         return panel;
     }
 
-    public TabPageControlInfo CreateTabPage(string text, string toolTipText, params PropertyName[] propertyNames)
+    public TabPageControlInfo CreateTabPage(string text, string? toolTipText, params PropertyName[] propertyNames)
     {
         if (propertyNames == null || propertyNames.Length == 0)
         {

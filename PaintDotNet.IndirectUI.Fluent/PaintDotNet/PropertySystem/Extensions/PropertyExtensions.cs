@@ -1,4 +1,4 @@
-﻿// Copyright 2023 Osman Tunçelli. All rights reserved.
+﻿// Copyright 2025 Osman Tunçelli. All rights reserved.
 // Use of this source code is governed by GNU General Public License (GPL-2.0) that can be found in the COPYING file.
 
 using PaintDotNet.Rendering;
@@ -12,7 +12,7 @@ public static class PropertyExtensions
     public static T GetValue<T>(this Property property)
     {
         Type type = typeof(T);
-        object o = property.Value;
+        object? o = property.Value;
         switch (o)
         {
             case int val when type == typeof(ColorBgra):
@@ -24,7 +24,7 @@ public static class PropertyExtensions
             case IConvertible val:
                 return (T)Convert.ChangeType(val, typeof(T));
             default:
-                throw new ArgumentException($"Can't convert from '{o.GetType()}' to '{type}'.", nameof(T));
+                throw new ArgumentException($"Cannot convert from `{o?.GetType()}` to `{type}`", nameof(T));
         }
     }
 
@@ -42,11 +42,14 @@ public static class PropertyExtensions
     {
         public static readonly IDisposable NoOp = new NoOpDisposable();
 
-        public static IDisposable FromAction(Action onDispose) => new ActionDisposable(onDispose);
+        public static IDisposable FromAction(Action onDispose)
+        {
+            return new ActionDisposable(onDispose);
+        }
 
         private sealed class ActionDisposable : IDisposable
         {
-            private Action action;
+            private Action? action;
 
             public ActionDisposable(Action action)
             {
@@ -59,7 +62,7 @@ public static class PropertyExtensions
 
             public void Dispose()
             {
-                Interlocked.Exchange(ref action, null)();
+                Interlocked.Exchange(ref action, null)?.Invoke();
             }
         }
 

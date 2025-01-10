@@ -1,60 +1,75 @@
-﻿// Copyright 2023 Osman Tunçelli. All rights reserved.
+﻿// Copyright 2025 Osman Tunçelli. All rights reserved.
 // Use of this source code is governed by GNU General Public License (GPL-2.0) that can be found in the COPYING file.
 
 using System;
 
 namespace PaintDotNet.PropertySystem;
 
-public sealed class PropertyName : IEquatable<PropertyName>
+public sealed class PropertyName(string name) : IEquatable<PropertyName>
 {
-    public string Name { get; }
+    public string Name { get; } = name ?? throw new ArgumentNullException(nameof(name));
 
-    public PropertyName(string name)
+    public bool Equals(PropertyName? other)
     {
-        Name = name ?? throw new ArgumentNullException(nameof(name));
-    }
-
-    public bool Equals(PropertyName other)
-    {
-        if (other == null) { return false; }
+        if (other is null) { return false; }
         if (ReferenceEquals(this, other)) { return true; }
         return Name.Equals(other.Name, StringComparison.Ordinal);
     }
 
-    public override bool Equals(object obj)
-        => Equals(obj as PropertyName);
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as PropertyName);
+    }
 
     public override int GetHashCode()
-        => Name.GetHashCode();
+    {
+        return Name.GetHashCode();
+    }
 
     public override string ToString()
-        => Name;
+    {
+        return Name;
+    }
 
     public TEnum? ToEnum<TEnum>(bool ignoreCase = false) where TEnum : struct, Enum
-        => Enum.TryParse(Name, ignoreCase, out TEnum @enum) ? (TEnum?)@enum : null;
+    {
+        return Enum.TryParse(Name, ignoreCase, out TEnum @enum) ? (TEnum?)@enum : null;
+    }
 
     #region Operators
 
     public static implicit operator PropertyName(Enum @enum)
     {
-        if (@enum is null) { throw new ArgumentNullException(nameof(@enum)); }
-        return new PropertyName(Enum.GetName(@enum.GetType(), @enum));
+        ArgumentNullException.ThrowIfNull(@enum);
+
+        string? name = Enum.GetName(@enum.GetType(), @enum);
+        return name is null
+            ? throw new InvalidOperationException("The specified enum constant could not be found.")
+            : new PropertyName(name);
     }
 
     public static implicit operator PropertyName(string s)
-        => new(s);
+    {
+        return new(s);
+    }
 
     public static implicit operator string(PropertyName pn)
-        => pn.Name;
+    {
+        return pn.Name;
+    }
 
     public static bool operator ==(PropertyName pn, Enum @enum)
     {
         if (@enum is null) { return false; }
-        return Enum.GetName(@enum.GetType(), @enum).Equals(pn.Name, StringComparison.Ordinal);
+
+        string? name = Enum.GetName(@enum.GetType(), @enum);
+        return name is not null && name.Equals(pn.Name, StringComparison.Ordinal);
     }
 
     public static bool operator !=(PropertyName pn, Enum @enum)
-        => !(pn == @enum);
+    {
+        return !(pn == @enum);
+    }
 
     #endregion
 }
